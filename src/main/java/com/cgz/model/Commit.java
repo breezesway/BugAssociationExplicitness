@@ -3,6 +3,7 @@ package com.cgz.model;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Data
 public class Commit {
@@ -35,6 +36,19 @@ public class Commit {
             this.operate = operate;
             this.fileName = fileName;
             this.oldFileName = oldFileName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            FileChange that = (FileChange) o;
+            return Objects.equals(fileName, that.fileName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(fileName);
         }
     }
 }

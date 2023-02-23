@@ -32,7 +32,7 @@ public class BugPairService {
         HashMap<String, ArrayList<Commit>> issueCommitsMap = commitService.parseIssueFromCommitList(commitList, keys);
 
         List<BugPair> filteredBugPairList = filterBugPairs(bugPairList, issueCommitsMap);
-        filteredBugPairList.parallelStream().forEach(b -> setMetrics(b, commitList, issueCommitsMap));
+        filteredBugPairList.forEach(b -> setMetrics(b, commitList, issueCommitsMap));
         filteredBugPairList.forEach(this::calculateMetrics);
         return filteredBugPairList;
     }
@@ -67,8 +67,8 @@ public class BugPairService {
         ArrayList<Commit> bugBCommits = issueCommitsMap.get(bugPair.getBugBName());
         bugPair.setBugACommit(bugACommits);
         bugPair.setBugBCommit(bugBCommits);
-        bugPair.setBugAFiles(bugACommits.stream().flatMap(b -> b.getFilesChange().stream()).collect(Collectors.toList()));
-        bugPair.setBugBFiles(bugBCommits.stream().flatMap(b -> b.getFilesChange().stream()).collect(Collectors.toList()));
+        bugPair.setBugAFiles(bugACommits.stream().flatMap(b -> b.getFilesChange().stream()).distinct().collect(Collectors.toList()));
+        bugPair.setBugBFiles(bugBCommits.stream().flatMap(b -> b.getFilesChange().stream()).distinct().collect(Collectors.toList()));
         bugPair.setSameCommit(commitService.isSameCommit(bugPair.getBugAName(), bugPair.getBugBName(), issueCommitsMap));
         bugPair.setBugAFileNum(bugPair.getBugAFiles().size());
         bugPair.setBugBFileNum(bugPair.getBugBFiles().size());
@@ -113,7 +113,9 @@ public class BugPairService {
     }
 
     private void calculateHAE(BugPair bugPair) {
-        bugPair.setHAE(bugPair.getInterFileNum() / bugPair.getUnionFileNum());
+        if(bugPair.getUnionFileNum() != 0){
+            bugPair.setHAE(bugPair.getInterFileNum() / bugPair.getUnionFileNum());
+        }
     }
 
     private void calculateCAE(BugPair bugPair) {
@@ -127,12 +129,16 @@ public class BugPairService {
             cae = 1;
         }else{
             cae = ((double) bugPair.getReferences().size())/
-                    (double) (bugAFileNum * bugBFileNum - IntStream.rangeClosed(1,interFileNum).reduce(1, (a,b) -> a*b));
+                    (double) (bugAFileNum * bugBFileNum - (interFileNum == 0? 0:IntStream.rangeClosed(1,interFileNum).reduce(1, (a,b) -> a*b)));
         }
         bugPair.setCAE(cae);
     }
 
     private void calculateAE(BugPair bugPair) {
+        if((bugPair.getBugAFileNum() + bugPair.getBugBFileNum()) == 0){
+            bugPair.setAE(0);
+            return;
+        }
         double haeP = 2 * bugPair.getInterFileNum() / (double) (bugPair.getBugAFileNum() + bugPair.getBugBFileNum());
         bugPair.setAE(bugPair.getHAE() * haeP + bugPair.getCAE() * (1.0 - haeP));
     }

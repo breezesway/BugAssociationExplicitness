@@ -23,6 +23,8 @@ public class IssueDao {
             if(rs.next()){
                 type = rs.getString("issuetype");
             }
+            pst.close();
+            conn.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

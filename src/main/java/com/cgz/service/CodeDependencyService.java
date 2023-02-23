@@ -7,6 +7,7 @@ import com.cgz.model.Reference;
 import com.cgz.util.Const;
 import com.cgz.util.KeyName;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,17 +30,18 @@ public class CodeDependencyService {
         String name = KeyName.getNameFromKey(keyPrefix).toLowerCase();
         String CodeRepositoryPath = Const.CodeRepositoryDir + "\\" + name;
 
-        codeDependencyDao.CheckoutCommit(CodeRepositoryPath, revision);
-
         String udbPath = Const.dependencyOutputDir + "\\" + name + "\\udb\\" + bugAName + "_" + bugBName + ".udb";
         String outputPath = Const.dependencyOutputDir + "\\" + name + "\\output\\" + bugAName + "_" + bugBName + "_output.csv";
         String matrixPath = Const.dependencyOutputDir + "\\" + name + "\\matrix\\" + bugAName + "_" + bugBName + "_matrix.csv";
 
-        codeDependencyDao.analyzeDependency(CodeRepositoryPath, udbPath, outputPath, matrixPath);
+        if (!new File(outputPath).exists()) {
+            codeDependencyDao.CheckoutCommit(CodeRepositoryPath, revision);
+            codeDependencyDao.analyzeDependency(CodeRepositoryPath, udbPath, outputPath, matrixPath);
+        }
 
         List<Reference> referenceList = codeDependencyDao.findReferenceList(outputPath);
-        Set<String> bugAFileSet = bugPair.getBugAFiles().stream().map(f -> getFileName(f.getFileName())).collect(Collectors.toSet());
-        Set<String> bugBFileSet = bugPair.getBugBFiles().stream().map(f -> getFileName(f.getFileName())).collect(Collectors.toSet());
+        Set<String> bugAFileSet = bugPair.getBugAFiles().stream().map(f -> getCommitFileName(f.getFileName())).collect(Collectors.toSet());
+        Set<String> bugBFileSet = bugPair.getBugBFiles().stream().map(f -> getCommitFileName(f.getFileName())).collect(Collectors.toSet());
         return referenceList.parallelStream()
                 .filter(r -> isRefInBugPair(r, bugAFileSet, bugBFileSet))
                 .distinct()
@@ -55,21 +57,40 @@ public class CodeDependencyService {
      * @return
      */
     private boolean isRefInBugPair(Reference reference, Set<String> bugAFileSet, Set<String> bugBFileSet) {
-        String from = getFileName(reference.getFrom());
-        String to = getFileName(reference.getTo());
+        String from = getCodeFileName(reference.getFrom());
+        String to = getCodeFileName(reference.getTo());
         return bugAFileSet.contains(from) && bugBFileSet.contains(to)
                 || bugAFileSet.contains(to) && bugBFileSet.contains(from);
     }
 
     /**
-     * 将全路径文件名截取，返回文件名
+     * 截取commit文件的全路径，返回其文件名
      *
      * @param fileName
      * @return
      */
-    private String getFileName(String fileName) {
-        int i = fileName.lastIndexOf('\\');
+    private String getCommitFileName(String fileName) {
+        int i = fileName.lastIndexOf('/');
         int j = fileName.lastIndexOf('.');
         return fileName.substring(i + 1, j);
+    }
+
+    /**
+     * 截取代码文件的全路径，返回其文件名
+     * (此处有个问题：output中的文件路径划分是\，\在读取的时候会被转义)
+     * (此处的处理不完善，还有待改进)
+     * @param fileName
+     * @return
+     */
+    private String getCodeFileName(String fileName) {
+        char[] array = fileName.toCharArray();
+        int i = Const.CodeRepositoryDir.length();
+        for (; i < array.length; i++) {
+            if (array[i] >= 'A' && array[i] <= 'Z') {
+                break;
+            }
+        }
+        int j = fileName.lastIndexOf('.');
+        return fileName.substring(i, j);
     }
 }

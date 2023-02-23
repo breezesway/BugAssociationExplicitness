@@ -20,6 +20,19 @@ public class FileUtil {
     }
 
     /**
+     * 判断该文件夹是否存在，不存在就创建
+     * @param dir
+     */
+    public static void judgeAndCreateDir(String dir){
+        File folder = new File(dir);
+        if (!folder.exists() && !folder.isDirectory()) {
+            if(!folder.mkdirs()){
+                System.out.println(dir+" 该文件夹不存在且创建失败...");
+            }
+        }
+    }
+
+    /**
      * 获取该commit文件对应的所有Key
      * @param commitFilePath
      * @return

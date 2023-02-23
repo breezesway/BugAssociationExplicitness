@@ -39,6 +39,8 @@ public class BugPairDao {
                 bugPair.setAssociationType(rs.getString("linktype"));
                 bugPairs.add(bugPair);
             }
+            pst.close();
+            conn.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -74,7 +76,7 @@ public class BugPairDao {
      * @param sheet
      */
     private void setHeaders(WritableSheet sheet){
-        String[] headers = new String[]{"bugAName","bugBName","sameCommit","bugAFileNum","bugBFileNum"
+        String[] headers = new String[]{"bugAName","bugBName","associationType","sameCommit","bugAFileNum","bugBFileNum"
                 ,"interFileNum","unionFileNum","RefNum","HAE","CAE","AE"};
         for(int j = 0;j<headers.length;j++){
             try {
@@ -93,15 +95,16 @@ public class BugPairDao {
         try {
             sheet.addCell(new Label(0,row,bugPair.getBugAName()));
             sheet.addCell(new Label(1,row,bugPair.getBugBName()));
-            sheet.addCell(new Label(2,row,bugPair.isSameCommit()?"true":"false"));
-            sheet.addCell(new Number(3,row,bugPair.getBugAFileNum()));
-            sheet.addCell(new Number(4,row,bugPair.getBugBFileNum()));
-            sheet.addCell(new Number(5,row,bugPair.getInterFileNum()));
-            sheet.addCell(new Number(6,row,bugPair.getUnionFileNum()));
-            sheet.addCell(new Number(7,row,bugPair.getReferences().size()));
-            sheet.addCell(new Number(8,row,bugPair.getHAE()));
-            sheet.addCell(new Number(9,row,bugPair.getCAE()));
-            sheet.addCell(new Number(10,row,bugPair.getAE()));
+            sheet.addCell(new Label(2,row,bugPair.getAssociationType()));
+            sheet.addCell(new Label(3,row,bugPair.isSameCommit()?"true":"false"));
+            sheet.addCell(new Number(4,row,bugPair.getBugAFileNum()));
+            sheet.addCell(new Number(5,row,bugPair.getBugBFileNum()));
+            sheet.addCell(new Number(6,row,bugPair.getInterFileNum()));
+            sheet.addCell(new Number(7,row,bugPair.getUnionFileNum()));
+            sheet.addCell(new Number(8,row,bugPair.getReferences().size()));
+            sheet.addCell(new Number(9,row,bugPair.getHAE()));
+            sheet.addCell(new Number(10,row,bugPair.getCAE()));
+            sheet.addCell(new Number(11,row,bugPair.getAE()));
         } catch (WriteException e) {
             e.printStackTrace();
         }
