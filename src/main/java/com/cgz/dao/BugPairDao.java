@@ -15,9 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class BugPairDao {
     /**
@@ -48,22 +46,19 @@ public class BugPairDao {
     }
 
     /**
-     * 将所有项目的BugPair存为一个excel文件，每个sheet对应一个key(或多个key)
-     * @param allProjectBugPairMap
+     * 将该项目的BugPair存为一个excel文件
+     * @param bugPairList
      * @param excelFilePath
      */
-    public void saveAllProjectBugPairMapAsExcel(LinkedHashMap<String, List<BugPair>> allProjectBugPairMap, String excelFilePath) {
+    public void saveAllProjectBugPairMapAsExcel(List<BugPair> bugPairList, String excelFilePath) {
         try {
             WritableWorkbook workbook = Workbook.createWorkbook(new File(excelFilePath));
-            AtomicInteger i = new AtomicInteger(0);
-            allProjectBugPairMap.forEach((k,v)->{
-                WritableSheet sheet = workbook.createSheet(k, i.getAndIncrement());
-                setHeaders(sheet);
-                int row = 1;
-                for(BugPair bugPair:v){
-                    setData(sheet,bugPair,row++);
-                }
-            });
+            WritableSheet sheet = workbook.createSheet("metric", 0);
+            setHeaders(sheet);
+            int row = 1;
+            for (BugPair bugPair : bugPairList) {
+                setData(sheet, bugPair, row++);
+            }
             workbook.write();
             workbook.close();
         } catch (IOException | WriteException e) {

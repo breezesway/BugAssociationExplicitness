@@ -37,8 +37,8 @@ public class BugPairService {
         return filteredBugPairList;
     }
 
-    public void saveAllProjectBugPairMapAsExcel(LinkedHashMap<String, List<BugPair>> allProjectBugPairMap, String excelFilePath) {
-        bugPairDao.saveAllProjectBugPairMapAsExcel(allProjectBugPairMap, excelFilePath);
+    public void saveProjectBugPairMapAsExcel(List<BugPair> bugPairList, String excelFilePath) {
+        bugPairDao.saveAllProjectBugPairMapAsExcel(bugPairList, excelFilePath);
     }
 
     /**

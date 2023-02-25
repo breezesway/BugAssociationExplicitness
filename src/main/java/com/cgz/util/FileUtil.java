@@ -2,7 +2,6 @@ package com.cgz.util;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class FileUtil {
 
@@ -33,19 +32,23 @@ public class FileUtil {
     }
 
     /**
-     * 获取该commit文件对应的所有Key
+     * 判断该文件是否存在
+     * @param file
+     * @return
+     */
+    public static boolean judgeFile(String file){
+        return new File(file).exists();
+    }
+
+    /**
+     * 获取该commit文件对应的name
      * @param commitFilePath
      * @return
      */
-    public static List<String> getKeyFromCommitFilePath(String commitFilePath){
+    public static String getNameFromCommitFilePath(String commitFilePath){
         int i = commitFilePath.lastIndexOf("\\");
         String substring = commitFilePath.substring(i + 1);
         int j = substring.indexOf("_");
-        String name = substring.substring(0, j);
-        List<String> keyList = KeyName.getKeyListFromName(name);
-        if(keyList == null){
-            System.out.println(name+"找不到对应key");
-        }
-        return keyList;
+        return substring.substring(0, j);
     }
 }

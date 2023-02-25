@@ -22,7 +22,11 @@ public class KeyName {
      * @return
      */
     public static List<String> getKeyListFromName(String name){
-        return nameToKey.get(name);
+        List<String> keyList = nameToKey.get(name);
+        if(keyList == null){
+            System.out.println(name+"找不到对应key");
+        }
+        return keyList;
     }
 
     /**
