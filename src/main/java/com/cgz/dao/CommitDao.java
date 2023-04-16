@@ -18,7 +18,6 @@ public class CommitDao {
      *
      * @param commitFilePath commit文件路径
      * @return 一个commit的List
-     * @throws IOException
      */
     public List<Commit> getCommitListFromText(String commitFilePath, List<String> keys) throws IOException {
         List<Commit> list = new ArrayList<>();
@@ -68,8 +67,6 @@ public class CommitDao {
 
     /**
      * 从一个commit的message中提取出所有的Key
-     *
-     * @param message
      * @param keys    前缀，一个或多个
      * @return 一个list
      */

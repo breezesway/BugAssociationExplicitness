@@ -4,7 +4,6 @@ import com.cgz.model.BugPair;
 import com.cgz.service.BugPairService;
 import com.cgz.util.Const;
 import com.cgz.util.FileUtil;
-import com.cgz.util.KeyName;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,10 +20,9 @@ public class BugPairController {
         ArrayList<String> commitFilePaths = FileUtil.getSingleLayerFilePath(new File(Const.commitFileDir));
         for(String commitFilePath:commitFilePaths){
             String name = FileUtil.getNameFromCommitFilePath(commitFilePath);
-            List<String> keys = KeyName.getKeyListFromName(name);
             String bugPairMetricExcelPath = Const.excelFileDir+"\\"+ name +"BugPairMetrics.xls";
             if(!FileUtil.judgeFile(bugPairMetricExcelPath)){
-                List<BugPair> bugPairList = bugPairService.getBugPairListByKeys(commitFilePath,keys);
+                List<BugPair> bugPairList = bugPairService.getBugPairListByKeys(commitFilePath,name);
                 bugPairService.saveProjectBugPairMapAsExcel(bugPairList,bugPairMetricExcelPath);
             }
         }

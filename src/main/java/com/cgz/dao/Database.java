@@ -7,10 +7,6 @@ import java.sql.SQLException;
 
 public class Database {
 
-    private static String databaseName = null;
-    private static String username = "root";
-    private static String password = "123456";
-
     private static DruidDataSource dataSource;
 
     static {
@@ -23,12 +19,13 @@ public class Database {
     }
 
     public static void initDataSource(String dbName){
-        databaseName = dbName;
         //数据源配置
         dataSource = new DruidDataSource();
-        dataSource.setUrl("jdbc:mysql://127.0.0.1/"+databaseName+"?serverTimezone=UTC&rewriteBatchedStatements=true");
+        dataSource.setUrl("jdbc:mysql://127.0.0.1/"+ dbName +"?serverTimezone=UTC&rewriteBatchedStatements=true");
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver"); //这个可以缺省的，会根据url自动识别
+        String username = "root";
         dataSource.setUsername(username);
+        String password = "123456";
         dataSource.setPassword(password);
 
         //下面都是可选的配置

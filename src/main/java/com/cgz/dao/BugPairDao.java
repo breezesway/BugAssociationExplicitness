@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BugPairDao {
+
     /**
      * 根据前缀返回该前缀的所有IssueLink
      * @param keyPrefix 前缀
@@ -39,16 +40,14 @@ public class BugPairDao {
             }
             pst.close();
             conn.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return bugPairs;
     }
 
     /**
      * 将该项目的BugPair存为一个excel文件
-     * @param bugPairList
-     * @param excelFilePath
      */
     public void saveAllProjectBugPairMapAsExcel(List<BugPair> bugPairList, String excelFilePath) {
         try {
@@ -68,7 +67,6 @@ public class BugPairDao {
 
     /**
      * 设置该sheet的表头
-     * @param sheet
      */
     private void setHeaders(WritableSheet sheet){
         String[] headers = new String[]{"bugAName","bugBName","associationType","sameCommit","bugAFileNum","bugBFileNum"
@@ -84,7 +82,6 @@ public class BugPairDao {
 
     /**
      * 设置一行数据
-     * @param sheet
      */
     private void setData(WritableSheet sheet,BugPair bugPair,int row){
         try {

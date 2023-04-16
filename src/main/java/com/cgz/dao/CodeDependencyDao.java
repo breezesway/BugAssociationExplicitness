@@ -4,20 +4,15 @@ import com.cgz.model.Reference;
 import com.cgz.util.FileUtil;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CodeDependencyDao {
 
     /**
      * 将该项目的代码库切换到指定版本
-     *
-     * @param sourceCodePath
-     * @param revision
      */
     public void CheckoutCommit(String sourceCodePath, String revision) {
         Runtime runtime = Runtime.getRuntime();
@@ -31,11 +26,6 @@ public class CodeDependencyDao {
 
     /**
      * 使用Understand分析代码依赖
-     *
-     * @param sourceCodePath
-     * @param udbProjectPath
-     * @param outputPath
-     * @param matrixPath
      */
     public void analyzeDependency(String sourceCodePath, String udbProjectPath, String outputPath, String matrixPath) {
         Runtime runtime = Runtime.getRuntime();
@@ -58,10 +48,6 @@ public class CodeDependencyDao {
 
     /**
      * 处理process的错误输入流
-     * @param process
-     * @param command
-     * @throws IOException
-     * @throws InterruptedException
      */
     private void handleInput(Process process,String command) throws IOException, InterruptedException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "gbk"));
@@ -82,13 +68,10 @@ public class CodeDependencyDao {
 
     /**
      * 读取output文件的所有reference
-     * @param outputPath
-     * @return
      */
     public List<Reference> findReferenceList(String outputPath) {
         List<Reference> refList = new ArrayList<>();
         try {
-
             CSVReader csvReader = new CSVReader(new FileReader(outputPath));
             String[] line = csvReader.readNext();
             while ((line = csvReader.readNext()) != null) {

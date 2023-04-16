@@ -25,10 +25,6 @@ public class CommitService {
 
     /**
      * 解析出所有的issue对应的commit(一个或多个)
-     *
-     * @param commitList
-     * @param keys
-     * @return
      */
     public HashMap<String, ArrayList<Commit>> parseIssueFromCommitList(List<Commit> commitList, List<String> keys) {
         HashMap<String, ArrayList<Commit>> map = new HashMap<>();
@@ -80,9 +76,6 @@ public class CommitService {
 
     /**
      * 将05/10/2011 00:57:13形式的日期转换为20111005005713的字符串形式
-     *
-     * @param date
-     * @return
      */
     private String parseDateToString(String date) {
         return date.substring(6, 10) +

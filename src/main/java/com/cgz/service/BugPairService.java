@@ -4,10 +4,10 @@ import com.cgz.dao.BugPairDao;
 import com.cgz.dao.IssueDao;
 import com.cgz.model.BugPair;
 import com.cgz.model.Commit;
+import com.cgz.util.KeyName;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class BugPairService {
 
@@ -19,11 +19,10 @@ public class BugPairService {
 
     /**
      * 获取该key(或keys，即一个项目对应多个key)的所有BugPair
-     * @param keys
-     * @return
      */
-    public List<BugPair> getBugPairListByKeys(String commitFilePath, List<String> keys) {
+    public List<BugPair> getBugPairListByKeys(String commitFilePath, String name) {
         List<BugPair> bugPairList = new ArrayList<>();
+        List<String> keys = KeyName.getKeyListFromName(name);
         for (String keyPrefix : keys) {
             List<BugPair> bugPairs = bugPairDao.findBugPairListByKeyPrefix(keyPrefix);
             bugPairList.addAll(bugPairs);
@@ -32,7 +31,7 @@ public class BugPairService {
         HashMap<String, ArrayList<Commit>> issueCommitsMap = commitService.parseIssueFromCommitList(commitList, keys);
 
         List<BugPair> filteredBugPairList = filterBugPairs(bugPairList, issueCommitsMap);
-        filteredBugPairList.forEach(b -> setMetrics(b, commitList, issueCommitsMap));
+        filteredBugPairList.forEach(b -> setMetrics(name,b, commitList, issueCommitsMap));
         filteredBugPairList.forEach(this::calculateMetrics);
         return filteredBugPairList;
     }
@@ -43,9 +42,6 @@ public class BugPairService {
 
     /**
      * 过滤list，只留下两个都为Bug类型，且必须在数据库和commit文件中同时存在，（且两个Bug修改的文件数量均>=1），的BugPair
-     *
-     * @param bugPairList
-     * @return
      */
     private List<BugPair> filterBugPairs(List<BugPair> bugPairList, HashMap<String, ArrayList<Commit>> issueCommitsMap) {
         return bugPairList.parallelStream().filter(bugPair -> {
@@ -58,11 +54,9 @@ public class BugPairService {
 
     /**
      * 设置BugPair对应的Commit(s)、Files、FileName、SameCommit、interFileNum、unionFileNum、references
-     * @param bugPair
-     * @param commitList
-     * @param issueCommitsMap
+     * @param name 项目名
      */
-    private void setMetrics(BugPair bugPair, List<Commit> commitList, HashMap<String, ArrayList<Commit>> issueCommitsMap) {
+    private void setMetrics(String name,BugPair bugPair, List<Commit> commitList, HashMap<String, ArrayList<Commit>> issueCommitsMap) {
         ArrayList<Commit> bugACommits = issueCommitsMap.get(bugPair.getBugAName());
         ArrayList<Commit> bugBCommits = issueCommitsMap.get(bugPair.getBugBName());
         bugPair.setBugACommit(bugACommits);
@@ -73,13 +67,11 @@ public class BugPairService {
         bugPair.setBugAFileNum(bugPair.getBugAFiles().size());
         bugPair.setBugBFileNum(bugPair.getBugBFiles().size());
         setInterAndUnion(bugPair);
-        setRef(bugPair,commitList);
+        setRef(name,bugPair,commitList);
     }
 
     /**
      * 设置该BugPair的文件交集和并集大小
-     *
-     * @param bugPair
      */
     private void setInterAndUnion(BugPair bugPair) {
         HashSet<String> bugASet = bugPair.getBugAFiles().stream().map(Commit.FileChange::getFileName).collect(Collectors.toCollection(HashSet::new));
@@ -94,17 +86,15 @@ public class BugPairService {
 
     /**
      * 设置该BugPair的references
-     * @param bugPair
-     * @param commitList
+     * @param name 项目名
      */
-    private void setRef(BugPair bugPair,List<Commit> commitList) {
+    private void setRef(String name,BugPair bugPair,List<Commit> commitList) {
         String revision = commitService.getRevisionByIssuePair(bugPair, commitList);
-        bugPair.setReferences(codeDependencyService.getReferences(bugPair,revision));
+        bugPair.setReferences(codeDependencyService.getReferences(name,bugPair,revision));
     }
 
     /**
      * 计算该BugPair的HAE、CAE、AE
-     * @param bugPair
      */
     private void calculateMetrics(BugPair bugPair) {
         calculateHAE(bugPair);
@@ -129,7 +119,7 @@ public class BugPairService {
             cae = 1;
         }else{
             cae = ((double) bugPair.getReferences().size())/
-                    (double) (bugAFileNum * bugBFileNum - (interFileNum == 0? 0:IntStream.rangeClosed(1,interFileNum).reduce(1, (a,b) -> a*b)));
+                    (bugAFileNum * bugBFileNum - (interFileNum*(interFileNum+1)/2.0));
         }
         bugPair.setCAE(cae);
     }
