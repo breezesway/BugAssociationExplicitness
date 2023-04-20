@@ -1,6 +1,5 @@
 package com.cgz;
 
-
 import com.cgz.controller.BugPairController;
 
 /**

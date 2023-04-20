@@ -6,7 +6,10 @@ import com.cgz.model.BugPair;
 import com.cgz.model.Commit;
 import com.cgz.util.KeyName;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class BugPairService {

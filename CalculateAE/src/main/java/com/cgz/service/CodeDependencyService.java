@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class CodeDependencyService {
 
-    private CodeDependencyDao codeDependencyDao = new CodeDependencyDao();
+    private final CodeDependencyDao codeDependencyDao = new CodeDependencyDao();
 
     /**
      * 获取该BugPair对应文件的所有Reference

@@ -2,17 +2,16 @@ package com.cgz.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class FileUtil {
 
     /**
      * 获取单层的文件夹下的所有文件绝对路径
-     * @param directory
-     * @return
      */
     public static ArrayList<String> getSingleLayerFilePath(File directory){
         ArrayList<String> list = new ArrayList<>();
-        for (File file:directory.listFiles()) {
+        for (File file: Objects.requireNonNull(directory.listFiles())) {
             list.add(file.getAbsolutePath());
         }
         return list;
@@ -20,7 +19,6 @@ public class FileUtil {
 
     /**
      * 判断该文件夹是否存在，不存在就创建
-     * @param dir
      */
     public static void judgeAndCreateDir(String dir){
         File folder = new File(dir);
@@ -33,8 +31,6 @@ public class FileUtil {
 
     /**
      * 判断该文件是否存在
-     * @param file
-     * @return
      */
     public static boolean judgeFile(String file){
         return new File(file).exists();
@@ -42,8 +38,6 @@ public class FileUtil {
 
     /**
      * 获取该commit文件对应的name
-     * @param commitFilePath
-     * @return
      */
     public static String getNameFromCommitFilePath(String commitFilePath){
         int i = commitFilePath.lastIndexOf("\\");
