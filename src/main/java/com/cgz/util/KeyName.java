@@ -1,7 +1,5 @@
 package com.cgz.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,8 +18,6 @@ public class KeyName {
 
     /**
      * 根据给定的name返回一组key
-     * @param name
-     * @return
      */
     public static List<String> getKeyListFromName(String name){
         List<String> keyList = nameToKey.get(name);
@@ -33,8 +29,6 @@ public class KeyName {
 
     /**
      * 根据给定的key返回其项目名
-     * @param key
-     * @return
      */
     public static String getNameFromKey(String key){
         return keyToName.get(key);
@@ -42,45 +36,45 @@ public class KeyName {
 
     private static void initNameToKey(){
         nameToKey = new HashMap<>();
-        nameToKey.put("hadoop", Arrays.asList("HADOOP","MAPREDUCE","YARN","HDFS"));
-        nameToKey.put("hbase", Arrays.asList("HADOOP","HBASE"));
-        nameToKey.put("hive", Arrays.asList("HADOOP","HIVE"));
-        nameToKey.put("kafka", Arrays.asList("KAFKA"));
-        nameToKey.put("impala", Arrays.asList("IMPALA"));
-        nameToKey.put("ambari", Arrays.asList("AMBARI"));
-        nameToKey.put("daffodil", Arrays.asList("DAFFODIL"));
-        nameToKey.put("jackrabbit-oak", Arrays.asList("OAK"));
-        nameToKey.put("jackrabbitoak", Arrays.asList("OAK"));
-        nameToKey.put("subversion", Arrays.asList("SVN"));
-        nameToKey.put("wicket", Arrays.asList("WICKET"));
-        nameToKey.put("arrow", Arrays.asList("ARROW"));
-        nameToKey.put("cordova", Arrays.asList("CB"));
-        nameToKey.put("activemq", Arrays.asList("AMQ"));
-        nameToKey.put("guacamole", Arrays.asList("GUACAMOLE"));
-        nameToKey.put("trafficserver", Arrays.asList("TS"));
-        nameToKey.put("cloudstack", Arrays.asList("CLOUDSTACK"));
-        nameToKey.put("mesos", Arrays.asList("MESOS"));
-        nameToKey.put("drill", Arrays.asList("DRILL"));
-        nameToKey.put("lucene", Arrays.asList("LUCENE","SOLR"));
-        nameToKey.put("solr", Arrays.asList("LUCENE","SOLR"));
-        nameToKey.put("hudi", Arrays.asList("HUDI"));
-        nameToKey.put("ignite", Arrays.asList("IGNITE"));
-        nameToKey.put("nifi", Arrays.asList("NIFI"));
-        nameToKey.put("ofbiz", Arrays.asList("OFBIZ"));
-        nameToKey.put("spark", Arrays.asList("SPARK"));
-        nameToKey.put("axis2", Arrays.asList("AXIS2"));
-        nameToKey.put("groovy", Arrays.asList("GROOVY"));
-        nameToKey.put("thrift", Arrays.asList("THRIFT"));
-        nameToKey.put("geode", Arrays.asList("GEODE"));
-        nameToKey.put("netbeans", Arrays.asList("NETBEANS"));
-        nameToKey.put("ozone", Arrays.asList("HDDS"));
-        nameToKey.put("camel", Arrays.asList("CAMEL"));
-        nameToKey.put("qpid", Arrays.asList("QPID"));
-        nameToKey.put("flink", Arrays.asList("FLINK"));
-        nameToKey.put("accumulo", Arrays.asList("ACCUMULO"));
-        nameToKey.put("calcite", Arrays.asList("CALCITE"));
-        nameToKey.put("maven", Arrays.asList("MNG"));
-        nameToKey.put("pdfbox", Arrays.asList("PDFBOX"));
+        nameToKey.put("hadoop", List.of("HADOOP","MAPREDUCE","YARN","HDFS"));
+        nameToKey.put("hbase", List.of("HADOOP","HBASE"));
+        nameToKey.put("hive", List.of("HADOOP","HIVE"));
+        nameToKey.put("kafka", List.of("KAFKA"));
+        nameToKey.put("impala", List.of("IMPALA"));
+        nameToKey.put("ambari", List.of("AMBARI"));
+        nameToKey.put("daffodil", List.of("DAFFODIL"));
+        nameToKey.put("jackrabbit-oak", List.of("OAK"));
+        nameToKey.put("jackrabbitoak", List.of("OAK"));
+        nameToKey.put("subversion", List.of("SVN"));
+        nameToKey.put("wicket", List.of("WICKET"));
+        nameToKey.put("arrow", List.of("ARROW"));
+        nameToKey.put("cordova", List.of("CB"));
+        nameToKey.put("activemq", List.of("AMQ"));
+        nameToKey.put("guacamole", List.of("GUACAMOLE"));
+        nameToKey.put("trafficserver", List.of("TS"));
+        nameToKey.put("cloudstack", List.of("CLOUDSTACK"));
+        nameToKey.put("mesos", List.of("MESOS"));
+        nameToKey.put("drill", List.of("DRILL"));
+        nameToKey.put("lucene", List.of("LUCENE","SOLR"));
+        nameToKey.put("solr", List.of("LUCENE","SOLR"));
+        nameToKey.put("hudi", List.of("HUDI"));
+        nameToKey.put("ignite", List.of("IGNITE"));
+        nameToKey.put("nifi", List.of("NIFI"));
+        nameToKey.put("ofbiz", List.of("OFBIZ"));
+        nameToKey.put("spark", List.of("SPARK"));
+        nameToKey.put("axis2", List.of("AXIS2"));
+        nameToKey.put("groovy", List.of("GROOVY"));
+        nameToKey.put("thrift", List.of("THRIFT"));
+        nameToKey.put("geode", List.of("GEODE"));
+        nameToKey.put("netbeans", List.of("NETBEANS"));
+        nameToKey.put("ozone", List.of("HDDS"));
+        nameToKey.put("camel", List.of("CAMEL"));
+        nameToKey.put("qpid", List.of("QPID"));
+        nameToKey.put("flink", List.of("FLINK"));
+        nameToKey.put("accumulo", List.of("ACCUMULO"));
+        nameToKey.put("calcite", List.of("CALCITE"));
+        nameToKey.put("maven", List.of("MNG"));
+        nameToKey.put("pdfbox", List.of("PDFBOX"));
     }
 
     private static void initKeyToName(){

@@ -129,7 +129,7 @@ public class BugPairService {
             bugPair.setAE(0);
             return;
         }
-        double haeP = 2 * bugPair.getInterFileNum() / (double) (bugPair.getBugAFileNum() + bugPair.getBugBFileNum());
+        double haeP = bugPair.getInterFileNum() / (double) (bugPair.getBugAFileNum() + bugPair.getBugBFileNum());
         bugPair.setAE(bugPair.getHAE() * haeP + bugPair.getCAE() * (1.0 - haeP));
     }
 }
