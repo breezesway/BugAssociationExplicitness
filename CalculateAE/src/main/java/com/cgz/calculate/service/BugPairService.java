@@ -1,10 +1,10 @@
-package com.cgz.service;
+package com.cgz.calculate.service;
 
-import com.cgz.dao.BugPairDao;
-import com.cgz.dao.IssueDao;
-import com.cgz.model.BugPair;
-import com.cgz.model.Commit;
-import com.cgz.util.KeyName;
+import com.cgz.calculate.dao.IssueDao;
+import com.cgz.calculate.dao.BugPairDao;
+import com.cgz.calculate.model.BugPair;
+import com.cgz.calculate.model.Commit;
+import com.cgz.calculate.util.KeyName;
 
 import java.util.ArrayList;
 import java.util.HashMap;

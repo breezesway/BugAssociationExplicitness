@@ -1,6 +1,6 @@
-package com.cgz.dao;
+package com.cgz.calculate.dao;
 
-import com.cgz.model.Commit;
+import com.cgz.calculate.model.Commit;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

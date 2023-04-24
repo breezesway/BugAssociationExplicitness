@@ -22,6 +22,7 @@
     </build>
     <modules>
         <module>CalculateAE</module>
+        <module>VerifyAE</module>
     </modules>
 
     <properties>
@@ -39,7 +40,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.27</version>
+            <version>8.0.28</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jexcelapi</groupId>

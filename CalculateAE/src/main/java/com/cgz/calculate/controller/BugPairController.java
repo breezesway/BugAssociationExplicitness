@@ -1,9 +1,9 @@
-package com.cgz.controller;
+package com.cgz.calculate.controller;
 
-import com.cgz.model.BugPair;
-import com.cgz.service.BugPairService;
-import com.cgz.util.Const;
-import com.cgz.util.FileUtil;
+import com.cgz.calculate.service.BugPairService;
+import com.cgz.calculate.model.BugPair;
+import com.cgz.calculate.util.Const;
+import com.cgz.calculate.util.FileUtil;
 
 import java.io.File;
 import java.util.ArrayList;

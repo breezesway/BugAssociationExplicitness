@@ -1,8 +1,8 @@
-package com.cgz.service;
+package com.cgz.calculate.service;
 
-import com.cgz.dao.CommitDao;
-import com.cgz.model.BugPair;
-import com.cgz.model.Commit;
+import com.cgz.calculate.model.BugPair;
+import com.cgz.calculate.model.Commit;
+import com.cgz.calculate.dao.CommitDao;
 
 import java.io.IOException;
 import java.util.ArrayList;

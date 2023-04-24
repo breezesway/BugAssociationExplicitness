@@ -1,4 +1,4 @@
-package com.cgz.model;
+package com.cgz.calculate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

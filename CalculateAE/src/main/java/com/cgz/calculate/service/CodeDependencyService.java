@@ -1,9 +1,9 @@
-package com.cgz.service;
+package com.cgz.calculate.service;
 
-import com.cgz.dao.CodeDependencyDao;
-import com.cgz.model.BugPair;
-import com.cgz.model.Reference;
-import com.cgz.util.Const;
+import com.cgz.calculate.dao.CodeDependencyDao;
+import com.cgz.calculate.model.BugPair;
+import com.cgz.calculate.model.Reference;
+import com.cgz.calculate.util.Const;
 
 import java.io.File;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.cgz.util;
+package com.cgz.calculate.util;
 
 import java.util.HashMap;
 import java.util.List;

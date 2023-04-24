@@ -1,4 +1,4 @@
-package com.cgz.util;
+package com.cgz.calculate.util;
 
 public interface Const {
     String commitFileDir = "G:\\AETestDir\\Commit";

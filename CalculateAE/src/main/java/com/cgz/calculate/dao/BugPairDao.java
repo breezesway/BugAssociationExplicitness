@@ -1,7 +1,7 @@
-package com.cgz.dao;
+package com.cgz.calculate.dao;
 
 import com.alibaba.druid.pool.DruidPooledConnection;
-import com.cgz.model.BugPair;
+import com.cgz.calculate.model.BugPair;
 import jxl.Workbook;
 import jxl.write.Number;
 import jxl.write.*;
