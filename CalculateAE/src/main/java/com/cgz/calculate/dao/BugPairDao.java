@@ -2,7 +2,10 @@ package com.cgz.calculate.dao;
 
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.cgz.calculate.model.BugPair;
+import jxl.Cell;
+import jxl.Sheet;
 import jxl.Workbook;
+import jxl.read.biff.BiffException;
 import jxl.write.Number;
 import jxl.write.*;
 
@@ -18,17 +21,18 @@ public class BugPairDao {
 
     /**
      * 根据前缀返回该前缀的所有IssueLink
+     *
      * @param keyPrefix 前缀
      * @return 所有IssueLink的list
      */
-    public List<BugPair> findBugPairListByKeyPrefix(String keyPrefix){
+    public List<BugPair> findBugPairListByKeyPrefix(String keyPrefix) {
         List<BugPair> bugPairs = new ArrayList<>();
         try {
             DruidPooledConnection conn = Database.getConnection();
-            String sql = "select id,linktype,inwardissuekey,outwardissuekey from issuelink where inwardissuekey like '"+keyPrefix+"%'";
+            String sql = "select id,linktype,inwardissuekey,outwardissuekey from issuelink where inwardissuekey like '" + keyPrefix + "%'";
             PreparedStatement pst = conn.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
-            while ((rs.next())){
+            while ((rs.next())) {
                 BugPair bugPair = new BugPair();
                 bugPair.setBugAName(rs.getString("inwardissuekey"));
                 bugPair.setBugBName(rs.getString("outwardissuekey"));
@@ -65,12 +69,16 @@ public class BugPairDao {
     /**
      * 设置该sheet的表头
      */
-    private void setHeaders(WritableSheet sheet){
-        String[] headers = new String[]{"bugAName","bugBName","associationType","sameCommit","bugAFileNum","bugBFileNum"
-                ,"interFileNum","unionFileNum","RefNum","HAE","CAE","AE"};
-        for(int j = 0;j<headers.length;j++){
+    private void setHeaders(WritableSheet sheet) {
+        String[] headers = new String[]{"bugAName", "bugBName", "associationType", "sameCommit",
+                "bugAFileNum", "bugBFileNum", "interFileNum", "unionFileNum",
+                "RefNum", "HAE", "CAE", "AE",
+                "bugAReopen", "bugBReopen", "reopen",
+                "bugALeadBug", "bugBLeadBug", "leadBug",
+                "bugAOpenDuration", "bugBOpenDuration", "openDuration"};
+        for (int j = 0; j < headers.length; j++) {
             try {
-                sheet.addCell(new Label(j,0,headers[j]));
+                sheet.addCell(new Label(j, 0, headers[j]));
             } catch (WriteException e) {
                 e.printStackTrace();
             }
@@ -80,20 +88,34 @@ public class BugPairDao {
     /**
      * 设置一行数据
      */
-    private void setData(WritableSheet sheet,BugPair bugPair,int row){
+    private void setData(WritableSheet sheet, BugPair bugPair, int row) {
         try {
-            sheet.addCell(new Label(0,row,bugPair.getBugAName()));
-            sheet.addCell(new Label(1,row,bugPair.getBugBName()));
-            sheet.addCell(new Label(2,row,bugPair.getAssociationType()));
-            sheet.addCell(new Label(3,row,bugPair.isSameCommit()?"true":"false"));
-            sheet.addCell(new Number(4,row,bugPair.getBugAFileNum()));
-            sheet.addCell(new Number(5,row,bugPair.getBugBFileNum()));
-            sheet.addCell(new Number(6,row,bugPair.getInterFileNum()));
-            sheet.addCell(new Number(7,row,bugPair.getUnionFileNum()));
-            sheet.addCell(new Number(8,row,bugPair.getReferences().size()));
-            sheet.addCell(new Number(9,row,bugPair.getHAE()));
-            sheet.addCell(new Number(10,row,bugPair.getCAE()));
-            sheet.addCell(new Number(11,row,bugPair.getAE()));
+            sheet.addCell(new Label(0, row, bugPair.getBugAName()));
+            sheet.addCell(new Label(1, row, bugPair.getBugBName()));
+            sheet.addCell(new Label(2, row, bugPair.getAssociationType()));
+            sheet.addCell(new Label(3, row, bugPair.isSameCommit() ? "true" : "false"));
+
+            sheet.addCell(new Number(4, row, bugPair.getBugAFileNum()));
+            sheet.addCell(new Number(5, row, bugPair.getBugBFileNum()));
+            sheet.addCell(new Number(6, row, bugPair.getInterFileNum()));
+            sheet.addCell(new Number(7, row, bugPair.getUnionFileNum()));
+            sheet.addCell(new Number(8, row, bugPair.getReferences().size()));
+
+            sheet.addCell(new Number(9, row, bugPair.getHAE()));
+            sheet.addCell(new Number(10, row, bugPair.getCAE()));
+            sheet.addCell(new Number(11, row, bugPair.getAE()));
+
+            sheet.addCell(new Label(12, row, bugPair.isBugAReopen() ? "true" : "false"));
+            sheet.addCell(new Label(13, row, bugPair.isBugBReopen() ? "true" : "false"));
+            sheet.addCell(new Label(14, row, bugPair.isReopen() ? "true" : "false"));
+
+            sheet.addCell(new Label(15, row, bugPair.isBugALeadBug() ? "true" : "false"));
+            sheet.addCell(new Label(16, row, bugPair.isBugBLeadBug() ? "true" : "false"));
+            sheet.addCell(new Label(17, row, bugPair.isLeadBug() ? "true" : "false"));
+
+            sheet.addCell(new Number(18, row, bugPair.getBugAOpenDuration()));
+            sheet.addCell(new Number(19, row, bugPair.getBugBOpenDuration()));
+            sheet.addCell(new Number(20, row, bugPair.getOpenDuration()));
         } catch (WriteException e) {
             e.printStackTrace();
         }
