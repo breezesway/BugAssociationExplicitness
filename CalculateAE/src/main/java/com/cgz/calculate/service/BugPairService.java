@@ -48,8 +48,8 @@ public class BugPairService {
      */
     private List<BugPair> filterBugPairs(List<BugPair> bugPairList, HashMap<String, ArrayList<Commit>> issueCommitsMap) {
         return bugPairList.parallelStream().filter(bugPair -> {
-            String bugAType = issueDao.findIssueTypeByKey(bugPair.getBugAName());
-            String bugBType = issueDao.findIssueTypeByKey(bugPair.getBugBName());
+            String bugAType = issueDao.getIssueType(bugPair.getBugAName());
+            String bugBType = issueDao.getIssueType(bugPair.getBugBName());
             return ("Bug".equalsIgnoreCase(bugAType) || "Bug".equalsIgnoreCase(bugBType)) &&
                     issueCommitsMap.containsKey(bugPair.getBugAName()) && issueCommitsMap.containsKey((bugPair.getBugBName()));
         }).collect(Collectors.toList());
