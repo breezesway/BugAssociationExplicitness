@@ -16,9 +16,9 @@ public class BugPairService {
 
     BugPairDao bugPairDao = new BugPairDao();
     IssueDao issueDao = new IssueDao();
-
     CommitService commitService = new CommitService();
     CodeDependencyService codeDependencyService = new CodeDependencyService();
+    IssueService issueService = new IssueService();
 
     /**
      * 获取该key(或keys，即一个项目对应多个key)的所有BugPair
@@ -33,10 +33,11 @@ public class BugPairService {
         List<Commit> commitList = commitService.getCommitList(commitFilePath, keys);
         HashMap<String, ArrayList<Commit>> issueCommitsMap = commitService.parseIssueFromCommitList(commitList, keys);
 
-        List<BugPair> filteredBugPairList = filterBugPairs(bugPairList, issueCommitsMap);
-        filteredBugPairList.forEach(b -> setMetrics(name,b, commitList, issueCommitsMap));
-        filteredBugPairList.forEach(this::calculateMetrics);
-        return filteredBugPairList;
+        List<BugPair> filtered = filterBugPairs(bugPairList, issueCommitsMap);
+        filtered.parallelStream().forEach(b -> setMetrics(name,b, commitList, issueCommitsMap));
+        filtered.forEach(b -> setRef(name,b,commitList));
+        filtered.forEach(this::calculateMetrics);
+        return filtered;
     }
 
     public void saveProjectBugPairMapAsExcel(List<BugPair> bugPairList, String excelFilePath) {
@@ -50,13 +51,15 @@ public class BugPairService {
         return bugPairList.parallelStream().filter(bugPair -> {
             String bugAType = issueDao.getIssueType(bugPair.getBugAName());
             String bugBType = issueDao.getIssueType(bugPair.getBugBName());
-            return ("Bug".equalsIgnoreCase(bugAType) || "Bug".equalsIgnoreCase(bugBType)) &&
-                    issueCommitsMap.containsKey(bugPair.getBugAName()) && issueCommitsMap.containsKey((bugPair.getBugBName()));
+            return "Bug".equalsIgnoreCase(bugAType) &&
+                    "Bug".equalsIgnoreCase(bugBType) &&
+                    issueCommitsMap.containsKey(bugPair.getBugAName()) &&
+                    issueCommitsMap.containsKey((bugPair.getBugBName()));
         }).collect(Collectors.toList());
     }
 
     /**
-     * 设置BugPair对应的Commit(s)、Files、FileName、SameCommit、interFileNum、unionFileNum、references
+     * 设置BugPair对应的Commit(s)、Files、FileName、SameCommit、interFileNum、unionFileNum、references、reopen、opentime
      * @param name 项目名
      */
     private void setMetrics(String name,BugPair bugPair, List<Commit> commitList, HashMap<String, ArrayList<Commit>> issueCommitsMap) {
@@ -70,7 +73,9 @@ public class BugPairService {
         bugPair.setBugAFileNum(bugPair.getBugAFiles().size());
         bugPair.setBugBFileNum(bugPair.getBugBFiles().size());
         setInterAndUnion(bugPair);
-        setRef(name,bugPair,commitList);
+        //setRef(name,bugPair,commitList);
+        reopen(bugPair);
+        opentime(bugPair);
     }
 
     /**
@@ -134,5 +139,17 @@ public class BugPairService {
         }
         double haeP = bugPair.getInterFileNum() / (double) (bugPair.getBugAFileNum() + bugPair.getBugBFileNum());
         bugPair.setAE(bugPair.getHAE() * haeP + bugPair.getCAE() * (1.0 - haeP));
+    }
+
+    private void reopen(BugPair bugPair) {
+        bugPair.setBugAReopen(issueService.hasReopened(bugPair.getBugAName()));
+        bugPair.setBugBReopen(issueService.hasReopened(bugPair.getBugBName()));
+        bugPair.setReopen(bugPair.isBugAReopen() || bugPair.isBugBReopen());
+    }
+
+    private void opentime(BugPair bugPair) {
+        bugPair.setBugAOpenDuration(issueService.getOpenDuration(bugPair.getBugAName()));
+        bugPair.setBugBOpenDuration(issueService.getOpenDuration(bugPair.getBugBName()));
+        bugPair.setOpenDuration((bugPair.getBugAOpenDuration() + bugPair.getBugBOpenDuration()) / 2);
     }
 }
