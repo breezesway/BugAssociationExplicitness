@@ -6,10 +6,7 @@ import com.cgz.calculate.model.BugPair;
 import com.cgz.calculate.model.Commit;
 import com.cgz.calculate.util.KeyName;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BugPairService {
@@ -32,9 +29,11 @@ public class BugPairService {
         }
         List<Commit> commitList = commitService.getCommitList(commitFilePath, keys);
         HashMap<String, ArrayList<Commit>> issueCommitsMap = commitService.parseIssueFromCommitList(commitList, keys);
+        Map<String, List<Commit>> fileCommitsMap = commitService.parseFileInCommits(commitList);
+        Map<String, String> renamedFiles = commitService.parseRenamedFile(commitList);
 
         List<BugPair> filtered = filterBugPairs(bugPairList, issueCommitsMap);
-        filtered.parallelStream().forEach(b -> setMetrics(name,b, commitList, issueCommitsMap));
+        filtered.parallelStream().forEach(b -> setMetrics(b, issueCommitsMap, fileCommitsMap, renamedFiles, keys));
         filtered.forEach(b -> setRef(name,b,commitList));
         filtered.forEach(this::calculateMetrics);
         return filtered;
@@ -59,10 +58,12 @@ public class BugPairService {
     }
 
     /**
-     * 设置BugPair对应的Commit(s)、Files、FileName、SameCommit、interFileNum、unionFileNum、references、reopen、opentime
-     * @param name 项目名
+     * 设置BugPair对应的Commit(s)、Files、FileName、SameCommit、interFileNum、unionFileNum、references、reopen、leadBug、openDuration
      */
-    private void setMetrics(String name,BugPair bugPair, List<Commit> commitList, HashMap<String, ArrayList<Commit>> issueCommitsMap) {
+    private void setMetrics(BugPair bugPair, HashMap<String, ArrayList<Commit>> issueCommitsMap,
+                            Map<String, List<Commit>> fileCommitsMap,
+                            Map<String, String> renamedFiles,
+                            List<String> keys) {
         ArrayList<Commit> bugACommits = issueCommitsMap.get(bugPair.getBugAName());
         ArrayList<Commit> bugBCommits = issueCommitsMap.get(bugPair.getBugBName());
         bugPair.setBugACommit(bugACommits);
@@ -73,9 +74,9 @@ public class BugPairService {
         bugPair.setBugAFileNum(bugPair.getBugAFiles().size());
         bugPair.setBugBFileNum(bugPair.getBugBFiles().size());
         setInterAndUnion(bugPair);
-        //setRef(name,bugPair,commitList);
         reopen(bugPair);
-        opentime(bugPair);
+        leadBug(bugPair, fileCommitsMap, renamedFiles, keys);
+        openDuration(bugPair);
     }
 
     /**
@@ -147,9 +148,16 @@ public class BugPairService {
         bugPair.setReopen(bugPair.isBugAReopen() || bugPair.isBugBReopen());
     }
 
-    private void opentime(BugPair bugPair) {
-        bugPair.setBugAOpenDuration(issueService.getOpenDuration(bugPair.getBugAName()));
-        bugPair.setBugBOpenDuration(issueService.getOpenDuration(bugPair.getBugBName()));
+    private void leadBug(BugPair bugPair, Map<String, List<Commit>> fileCommitsMap,
+                         Map<String, String> renamedFiles, List<String> keys){
+        bugPair.setBugALeadBug(issueService.isLeadBug(bugPair.getBugAName(), bugPair.getBugACommit(), fileCommitsMap, renamedFiles, keys));
+        bugPair.setBugBLeadBug(issueService.isLeadBug(bugPair.getBugBName(), bugPair.getBugBCommit(), fileCommitsMap, renamedFiles, keys));
+        bugPair.setLeadBug(bugPair.isBugALeadBug() || bugPair.isBugBLeadBug());
+    }
+
+    private void openDuration(BugPair bugPair) {
+        bugPair.setBugAOpenDuration(issueService.getOpenDuration(bugPair.getBugAName(), bugPair.getBugACommit()));
+        bugPair.setBugBOpenDuration(issueService.getOpenDuration(bugPair.getBugBName(), bugPair.getBugBCommit()));
         bugPair.setOpenDuration((bugPair.getBugAOpenDuration() + bugPair.getBugBOpenDuration()) / 2);
     }
 }

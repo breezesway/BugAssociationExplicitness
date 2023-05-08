@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CommitService {
 
@@ -106,8 +107,49 @@ public class CommitService {
             for (Commit commit : commits2) {
                 commitB.append(commit.getRevision());
             }
-            return commitA.toString().equals(commitB.toString());
+            return commitA.toString().contentEquals(commitB);
         }
         return false;
+    }
+
+    /**
+     * 解析出每个文件出现在哪些commit中
+     */
+    public Map<String, List<Commit>> parseFileInCommits(List<Commit> commits) {
+        HashMap<String, List<Commit>> map = new HashMap<>(commits.size() * 2);
+        for (Commit commit : commits) {
+            for (Commit.FileChange fileChange : commit.getFilesChange()) {
+                String fileName = fileChange.getFileName();
+                if (map.containsKey(fileName)) {
+                    map.get(fileName).add(commit);
+                } else {
+                    ArrayList<Commit> c = new ArrayList<>();
+                    c.add(commit);
+                    map.put(fileName, c);
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 解析出所有发生了Renamed的文件
+     * @return 返回一个Map，key是文件的原名，value是文件更改后的名
+     */
+    public Map<String,String> parseRenamedFile(List<Commit> commits){
+        HashMap<String, String> map = new HashMap<>();
+        for (Commit commit : commits) {
+            for (Commit.FileChange fileChange : commit.getFilesChange()) {
+                if ("Renamed".equals(fileChange.getOperate())){
+                    if(map.containsKey(fileChange.getOldFileName()) &&
+                    !map.get(fileChange.getOldFileName()).equals(fileChange.getFileName())){
+                        throw new RuntimeException("该fileName"+fileChange+"已在map中");
+                    }else {
+                        map.put(fileChange.getOldFileName(), fileChange.getFileName());
+                    }
+                }
+            }
+        }
+        return map;
     }
 }
