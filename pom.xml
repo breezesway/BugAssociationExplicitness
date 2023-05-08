@@ -22,7 +22,6 @@
     </build>
     <modules>
         <module>CalculateAE</module>
-        <module>VerifyAE</module>
     </modules>
 
     <properties>
