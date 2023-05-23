@@ -113,7 +113,7 @@ public class CommitService {
     }
 
     /**
-     * 解析出每个文件出现在哪些commit中
+     * 解析出每个文件出现在哪些commit中，此时未处理Renamed情况
      */
     public Map<String, List<Commit>> parseFileInCommits(List<Commit> commits) {
         HashMap<String, List<Commit>> map = new HashMap<>(commits.size() * 2);
