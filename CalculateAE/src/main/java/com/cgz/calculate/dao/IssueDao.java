@@ -29,6 +29,7 @@ public class IssueDao {
                 issue.setCreated(rs.getString("created"));
                 issue.setResolutiondate(rs.getString("resolutiondate"));
             }
+            rs.close();
             pst.close();
             conn.close();
         } catch (SQLException throwables) {
@@ -57,6 +58,7 @@ public class IssueDao {
                         .build();
                 list.add(transition);
             }
+            rs.close();
             pst.close();
             conn.close();
         } catch (SQLException e) {

@@ -110,7 +110,7 @@ public class BugPairDao {
             sheet.addCell(new Label(16, row, bugPair.isBugBLeadBug() ? "true" : "false"));
             sheet.addCell(new Label(17, row, bugPair.isLeadBug() ? "true" : "false"));
 
-            sheet.addCell(new Number(20, row, bugPair.getOpenDuration()));
+            sheet.addCell(new Number(18, row, bugPair.getOpenDuration()));
         } catch (WriteException e) {
             e.printStackTrace();
         }
