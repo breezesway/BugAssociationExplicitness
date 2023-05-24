@@ -45,7 +45,5 @@ public class BugPair {
     /**
      * 该bug的open时长, 单位min
      */
-    private long bugAOpenDuration;
-    private long bugBOpenDuration;
     private long openDuration;
 }

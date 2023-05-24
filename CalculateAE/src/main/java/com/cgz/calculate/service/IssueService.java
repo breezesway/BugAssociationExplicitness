@@ -3,6 +3,7 @@ package com.cgz.calculate.service;
 import com.cgz.calculate.dao.CommitDao;
 import com.cgz.calculate.dao.IssueDao;
 import com.cgz.calculate.model.Commit;
+import com.cgz.calculate.model.Issue;
 import com.cgz.calculate.model.Transition;
 
 import java.time.Duration;
@@ -58,7 +59,7 @@ public class IssueService {
                             ArrayList<String> issues = commitDao.getIssuesFromMessage(nextCommit.getMessage(), keys);
                             for(String issue : issues){
                                 //判断该issue是否是一个新的bug
-                                if(!issueKey.equals(issue) && "Bug".equalsIgnoreCase(issueDao.getIssueType(issue))){
+                                if(!issueKey.equals(issue) && "Bug".equalsIgnoreCase(issueDao.getIssue(issue).getIssueType())){
                                     return true;
                                 }
                             }
@@ -71,35 +72,17 @@ public class IssueService {
     }
 
     /**
-     * 获取该issue的openDuration
+     * 获取两个issue的OpenDuration，规则是：最迟解决时间-最早报告时间
      */
-    public long getOpenDuration(String key, List<Commit> commits) {
-        String createTime = issueDao.getCreateTime(key);
-        LocalDateTime end = getEndTime(key,commits);
-        LocalDateTime created = LocalDateTime.parse(createTime, formatterMySQL);
-        Duration duration = Duration.between(created, end);
-        return duration.toMinutes();
+    public long getOpenDuration(String keyA,String keyB) {
+        Issue issueA = issueDao.getIssue(keyA);
+        Issue issueB = issueDao.getIssue(keyB);
+        LocalDateTime createdA = LocalDateTime.parse(issueA.getCreated());
+        LocalDateTime createdB = LocalDateTime.parse(issueB.getCreated());
+        LocalDateTime resolutiondateA = LocalDateTime.parse(issueA.getResolutiondate());
+        LocalDateTime resolutiondateB = LocalDateTime.parse(issueB.getResolutiondate());
+        LocalDateTime created = createdA.isBefore(createdB) ? createdA : createdB;
+        LocalDateTime end = resolutiondateA.isAfter(resolutiondateB) ? resolutiondateA : resolutiondateB;
+        return Duration.between(created,end).toMinutes();
     }
-
-    /**
-     * 获取该issue关闭时间
-     */
-    public LocalDateTime getEndTime(String key, List<Commit> commits){
-        List<Transition> transitions = issueDao.getTransitions(key);
-        String endTime = null;
-        for (int i = transitions.size() - 1; i >= 0; i--) {
-            Transition transition = transitions.get(i);
-            if (transition.getToString().equalsIgnoreCase("RESOLVED") ||
-                    transition.getToString().equalsIgnoreCase("CLOSED")) {
-                endTime = transition.getCreated();
-                break;
-            }
-        }
-        if(endTime != null){
-            return LocalDateTime.parse(endTime, formatterMySQL);
-        }
-        endTime = commits.get(commits.size()-1).getDate();
-        return LocalDateTime.parse(endTime, formatterCommit);
-    }
-
 }

@@ -72,7 +72,7 @@ public class BugPairDao {
                 "RefNum", "HAE", "CAE", "AE",
                 "bugAReopen", "bugBReopen", "reopen",
                 "bugALeadBug", "bugBLeadBug", "leadBug",
-                "bugAOpenDuration", "bugBOpenDuration", "openDuration"};
+                "openDuration"};
         for (int j = 0; j < headers.length; j++) {
             try {
                 sheet.addCell(new Label(j, 0, headers[j]));
@@ -110,8 +110,6 @@ public class BugPairDao {
             sheet.addCell(new Label(16, row, bugPair.isBugBLeadBug() ? "true" : "false"));
             sheet.addCell(new Label(17, row, bugPair.isLeadBug() ? "true" : "false"));
 
-            sheet.addCell(new Number(18, row, bugPair.getBugAOpenDuration()));
-            sheet.addCell(new Number(19, row, bugPair.getBugBOpenDuration()));
             sheet.addCell(new Number(20, row, bugPair.getOpenDuration()));
         } catch (WriteException e) {
             e.printStackTrace();

@@ -1,6 +1,7 @@
 package com.cgz.calculate.dao;
 
 import com.alibaba.druid.pool.DruidPooledConnection;
+import com.cgz.calculate.model.Issue;
 import com.cgz.calculate.model.Transition;
 
 import java.sql.PreparedStatement;
@@ -12,26 +13,28 @@ import java.util.List;
 public class IssueDao {
 
     /**
-     * 判断该issue的类型
-     * @param key 该issue的key
-     * @return bug的类型
+     * 根据Key获取Issue
      */
-    public String getIssueType(String key){
-        String type = "";
+    public Issue getIssue(String key){
+        Issue issue = null;
         try {
             DruidPooledConnection conn = Database.getConnection();
-            String sql = "select issuetype from issue where issue.key = '"+key+"'";
+            String sql = "select issuetype,status,created,resolutiondate from issue where issue.key = '"+key+"'";
             PreparedStatement pst = conn.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
             if(rs.next()){
-                type = rs.getString("issuetype");
+                issue = new Issue();
+                issue.setIssueType(rs.getString("issuetype"));
+                issue.setStatus(rs.getString("status"));
+                issue.setCreated(rs.getString("created"));
+                issue.setResolutiondate(rs.getString("resolutiondate"));
             }
             pst.close();
             conn.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return type;
+        return issue;
     }
 
     /**
@@ -60,26 +63,5 @@ public class IssueDao {
             throw new RuntimeException(e);
         }
         return list;
-    }
-
-    /**
-     * 获取该issue的创建时间
-     */
-    public String getCreateTime(String key) {
-        String createTime = "";
-        try {
-            DruidPooledConnection conn = Database.getConnection();
-            String sql = "select created from issue where issue.key = '" + key + "'";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            ResultSet rs = pst.executeQuery();
-            if(rs.next()){
-                createTime = rs.getString("created");
-            }
-            pst.close();
-            conn.close();
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return createTime;
     }
 }

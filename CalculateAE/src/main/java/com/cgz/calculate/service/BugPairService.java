@@ -4,6 +4,7 @@ import com.cgz.calculate.dao.IssueDao;
 import com.cgz.calculate.dao.BugPairDao;
 import com.cgz.calculate.model.BugPair;
 import com.cgz.calculate.model.Commit;
+import com.cgz.calculate.model.Issue;
 import com.cgz.calculate.util.KeyName;
 
 import java.util.*;
@@ -43,20 +44,26 @@ public class BugPairService {
         //从commit记录中解析出发生了Renamed的文件
         Map<String, String> renamedFiles = commitService.parseRenamedFile(commitList);
 
-        //过滤bugPair，只留下两个都为Bug类型，且必须在数据库和commit文件中同时存在的BugPair
+        //过滤bugPair，只留下两个都为Bug类型，且状态必须为Resolved或Closed，且必须在数据库和commit文件中同时存在的BugPair
         List<BugPair> filtered = bugPairList.parallelStream().filter(bugPair -> {
-            String bugAType = issueDao.getIssueType(bugPair.getBugAName());
-            String bugBType = issueDao.getIssueType(bugPair.getBugBName());
-            return "Bug".equalsIgnoreCase(bugAType) &&
-                    "Bug".equalsIgnoreCase(bugBType) &&
+            Issue issueA = issueDao.getIssue(bugPair.getBugAName());
+            Issue issueB = issueDao.getIssue(bugPair.getBugBName());
+            return "Bug".equalsIgnoreCase(issueA.getIssueType()) &&
+                    "Bug".equalsIgnoreCase(issueB.getIssueType()) &&
+                    (issueA.getStatus().equalsIgnoreCase("Resolved") ||
+                            issueA.getStatus().equalsIgnoreCase("Closed")) &&
+                    (issueB.getStatus().equalsIgnoreCase("Resolved") ||
+                            issueB.getStatus().equalsIgnoreCase("Closed")) &&
                     issueCommitsMap.containsKey(bugPair.getBugAName()) &&
                     issueCommitsMap.containsKey((bugPair.getBugBName()));
         }).collect(Collectors.toList());
 
         //设置每个bugPair的部分指标
         filtered.parallelStream().forEach(bugPair -> {
-            ArrayList<Commit> bugACommits = issueCommitsMap.get(bugPair.getBugAName());
-            ArrayList<Commit> bugBCommits = issueCommitsMap.get(bugPair.getBugBName());
+            String bugAName = bugPair.getBugAName();
+            String bugBName = bugPair.getBugBName();
+            ArrayList<Commit> bugACommits = issueCommitsMap.get(bugAName);
+            ArrayList<Commit> bugBCommits = issueCommitsMap.get(bugBName);
             //设置BugPair对应的Commit(s)
             bugPair.setBugACommit(bugACommits);
             bugPair.setBugBCommit(bugBCommits);
@@ -64,24 +71,22 @@ public class BugPairService {
             bugPair.setBugAFiles(bugACommits.stream().flatMap(b -> b.getFilesChange().stream()).distinct().collect(Collectors.toList()));
             bugPair.setBugBFiles(bugBCommits.stream().flatMap(b -> b.getFilesChange().stream()).distinct().collect(Collectors.toList()));
             //设置该bugPair是否属于同一个commit
-            bugPair.setSameCommit(commitService.isSameCommit(bugPair.getBugAName(), bugPair.getBugBName(), issueCommitsMap));
+            bugPair.setSameCommit(commitService.isSameCommit(bugAName, bugBName, issueCommitsMap));
             //设置该bugPair涉及的文件数量
             bugPair.setBugAFileNum(bugPair.getBugAFiles().size());
             bugPair.setBugBFileNum(bugPair.getBugBFiles().size());
             //设置该BugPair的文件交集和并集大小
             setInterAndUnion(bugPair);
             //设置该bugPair是否Reopen过
-            bugPair.setBugAReopen(issueService.hasReopened(bugPair.getBugAName()));
-            bugPair.setBugBReopen(issueService.hasReopened(bugPair.getBugBName()));
+            bugPair.setBugAReopen(issueService.hasReopened(bugAName));
+            bugPair.setBugBReopen(issueService.hasReopened(bugBName));
             bugPair.setReopen(bugPair.isBugAReopen() || bugPair.isBugBReopen());
             //设置修复该bugPair时是否引入了新的bug
-            bugPair.setBugALeadBug(issueService.isLeadBug(bugPair.getBugAName(), bugPair.getBugACommit(), fileCommitsMap, renamedFiles, keys));
-            bugPair.setBugBLeadBug(issueService.isLeadBug(bugPair.getBugBName(), bugPair.getBugBCommit(), fileCommitsMap, renamedFiles, keys));
+            bugPair.setBugALeadBug(issueService.isLeadBug(bugAName, bugPair.getBugACommit(), fileCommitsMap, renamedFiles, keys));
+            bugPair.setBugBLeadBug(issueService.isLeadBug(bugBName, bugPair.getBugBCommit(), fileCommitsMap, renamedFiles, keys));
             bugPair.setLeadBug(bugPair.isBugALeadBug() || bugPair.isBugBLeadBug());
             //设置该bugPair打开的时间
-            bugPair.setBugAOpenDuration(issueService.getOpenDuration(bugPair.getBugAName(), bugPair.getBugACommit()));
-            bugPair.setBugBOpenDuration(issueService.getOpenDuration(bugPair.getBugBName(), bugPair.getBugBCommit()));
-            bugPair.setOpenDuration((bugPair.getBugAOpenDuration() + bugPair.getBugBOpenDuration()) / 2);
+            bugPair.setOpenDuration(issueService.getOpenDuration(bugAName, bugBName));
         });
 
         //再次过滤bugPair，只留下两个Bug都至少修改了一个文件的BugPair
