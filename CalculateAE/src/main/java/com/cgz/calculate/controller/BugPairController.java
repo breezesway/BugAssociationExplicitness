@@ -18,8 +18,10 @@ public class BugPairController {
      */
     public void getAllProjectBugPairs(){
         ArrayList<String> commitFilePaths = FileUtil.getSingleLayerFilePath(new File(Const.commitFileDir));
+        System.out.println("获取到所有commit文件");
         for(String commitFilePath:commitFilePaths){
             String name = FileUtil.getNameFromCommitFilePath(commitFilePath);
+            System.out.println("-------解析--- "+name+" ------");
             String bugPairMetricExcelPath = Const.excelFileDir+"\\"+ name +"BugPairMetrics.xls";
             if(!FileUtil.judgeFile(bugPairMetricExcelPath)){
                 List<BugPair> bugPairList = bugPairService.getBugPairListByKeys(commitFilePath,name);

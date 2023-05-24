@@ -20,7 +20,8 @@ public class IssueService {
     CommitDao commitDao = new CommitDao();
 
     DateTimeFormatter formatterMySQL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    DateTimeFormatter formatterCommit = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+
+    //DateTimeFormatter formatterCommit = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
 
     /**
      * 检查该issue是否reopened过
@@ -77,10 +78,10 @@ public class IssueService {
     public long getOpenDuration(String keyA,String keyB) {
         Issue issueA = issueDao.getIssue(keyA);
         Issue issueB = issueDao.getIssue(keyB);
-        LocalDateTime createdA = LocalDateTime.parse(issueA.getCreated());
-        LocalDateTime createdB = LocalDateTime.parse(issueB.getCreated());
-        LocalDateTime resolutiondateA = LocalDateTime.parse(issueA.getResolutiondate());
-        LocalDateTime resolutiondateB = LocalDateTime.parse(issueB.getResolutiondate());
+        LocalDateTime createdA = LocalDateTime.parse(issueA.getCreated(), formatterMySQL);
+        LocalDateTime createdB = LocalDateTime.parse(issueB.getCreated(), formatterMySQL);
+        LocalDateTime resolutiondateA = LocalDateTime.parse(issueA.getResolutiondate(), formatterMySQL);
+        LocalDateTime resolutiondateB = LocalDateTime.parse(issueB.getResolutiondate(), formatterMySQL);
         LocalDateTime created = createdA.isBefore(createdB) ? createdA : createdB;
         LocalDateTime end = resolutiondateA.isAfter(resolutiondateB) ? resolutiondateA : resolutiondateB;
         return Duration.between(created,end).toMinutes();

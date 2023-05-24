@@ -25,17 +25,20 @@ public class BugPairService {
      * @return 该项目所有的符合要求的BugPair
      */
     public List<BugPair> getBugPairListByKeys(String commitFilePath, String name) {
+        System.out.println("  获取 "+name+" 的所有bugPair...");
         List<BugPair> bugPairList = new ArrayList<>();
 
         //根据项目名获取该项目的Key（一个项目可能对应对各Key）
         List<String> keys = KeyName.getKeyListFromName(name);
 
         //查找MySQL中的issue
+        System.out.println("  查询 "+name+" 的所有issue...");
         for (String keyPrefix : keys) {
             List<BugPair> bugPairs = bugPairDao.findBugPairListByKeyPrefix(keyPrefix);
             bugPairList.addAll(bugPairs);
         }
         //获取所有commit记录
+        System.out.println("  获取 "+name+" 的所有commit记录...");
         List<Commit> commitList = commitService.getCommitList(commitFilePath, keys);
         //从commit记录中解析出Issue，得到一个Map，每个Issue对应的commit(s)
         HashMap<String, ArrayList<Commit>> issueCommitsMap = commitService.parseIssueFromCommitList(commitList, keys);
@@ -44,6 +47,7 @@ public class BugPairService {
         //从commit记录中解析出发生了Renamed的文件
         Map<String, String> renamedFiles = commitService.parseRenamedFile(commitList);
 
+        System.out.println("  过滤 "+name+" 的bugPair...");
         //过滤bugPair，只留下两个都为Bug类型，且状态必须为Resolved或Closed，且必须在数据库和commit文件中同时存在的BugPair
         List<BugPair> filtered = bugPairList.parallelStream().filter(bugPair -> {
             Issue issueA = issueDao.getIssue(bugPair.getBugAName());
@@ -58,6 +62,7 @@ public class BugPairService {
                     issueCommitsMap.containsKey((bugPair.getBugBName()));
         }).collect(Collectors.toList());
 
+        System.out.println("  设置 "+name+" 的bugPair的部分指标...");
         //设置每个bugPair的部分指标
         filtered.parallelStream().forEach(bugPair -> {
             String bugAName = bugPair.getBugAName();
@@ -89,17 +94,20 @@ public class BugPairService {
             bugPair.setOpenDuration(issueService.getOpenDuration(bugAName, bugBName));
         });
 
+        System.out.println("  再次过滤 "+name+" 的bugPair...");
         //再次过滤bugPair，只留下两个Bug都至少修改了一个文件的BugPair
         filtered = filtered.parallelStream()
                 .filter(bugPair -> bugPair.getBugAFileNum()>0 && bugPair.getBugBFileNum()>0)
                 .collect(Collectors.toList());
 
+        System.out.println("  设置 "+name+" 的bugPair的References...");
         //设置bugPair的references
         filtered.forEach(bugPair -> {
             String revision = commitService.getRevisionByIssuePair(bugPair, commitList);
             bugPair.setReferences(codeDependencyService.getReferences(name,bugPair,revision));
         });
 
+        System.out.println("  计算 "+name+" 的bugPair的AE值...");
         //计算该BugPair的HAE、CAE、AE
         filtered.forEach(bugPair -> {
             calculateHAE(bugPair);
