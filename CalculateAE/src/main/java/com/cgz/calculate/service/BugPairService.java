@@ -45,7 +45,7 @@ public class BugPairService {
         //从commit记录中解析出每个文件出现在哪些Commit(s)
         Map<String, List<Commit>> fileCommitsMap = commitService.parseFileInCommits(commitList);
         //从commit记录中解析出发生了Renamed的文件
-        //Map<String, String> renamedFiles = commitService.parseRenamedFile(commitList);
+        Map<String, String> renamedFiles = commitService.parseRenamedFile(commitList);
 
         System.out.println("  过滤 "+name+" 的bugPair...");
         //过滤bugPair，只留下两个都为Bug类型，且状态必须为Resolved或Closed，且必须在数据库和commit文件中同时存在的BugPair
@@ -88,9 +88,9 @@ public class BugPairService {
             bugPair.setBugBReopen(issueService.hasReopened(bugBName));
             bugPair.setReopen(bugPair.isBugAReopen() || bugPair.isBugBReopen());
             //设置修复该bugPair时是否引入了新的bug
-            /*bugPair.setBugALeadBug(issueService.isLeadBug(bugAName, bugPair.getBugACommit(), fileCommitsMap, renamedFiles, keys));
+            bugPair.setBugALeadBug(issueService.isLeadBug(bugAName, bugPair.getBugACommit(), fileCommitsMap, renamedFiles, keys));
             bugPair.setBugBLeadBug(issueService.isLeadBug(bugBName, bugPair.getBugBCommit(), fileCommitsMap, renamedFiles, keys));
-            bugPair.setLeadBug(bugPair.isBugALeadBug() || bugPair.isBugBLeadBug());*/
+            bugPair.setLeadBug(bugPair.isBugALeadBug() || bugPair.isBugBLeadBug());
             //设置该bugPair打开的时间
             bugPair.setOpenDuration(issueService.getOpenDuration(bugAName, bugBName));
         });

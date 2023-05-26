@@ -41,26 +41,29 @@ public class IssueService {
      * 检查修复该issue时是否引入了新的bug
      */
     public boolean isLeadBug(String issueKey, List<Commit> commits, Map<String, List<Commit>> fileCommitsMap,
-                             Map<String, String> renamedFiles, List<String> keys){
-        for(Commit commit : commits){
-            for(Commit.FileChange fileChange : commit.getFilesChange()){
+                             Map<String, String> renamedFiles, List<String> keys) {
+        for (Commit commit : commits) {
+            for (Commit.FileChange fileChange : commit.getFilesChange()) {
                 String fileName = fileChange.getFileName();
                 List<Commit> fileCommits = fileCommitsMap.get(fileName);
-                for(int i = 0;i<fileCommits.size();i++){
-                    if(commit.getRevision().equals(fileCommits.get(i).getRevision())){
+                for (int i = 0; i < fileCommits.size(); i++) {
+                    if (commit.getRevision().equals(fileCommits.get(i).getRevision())) {
                         Commit nextCommit = null;
-                        if(i<fileCommits.size()-1){ //判断下一个commit是否修复了bug
+                        if (i < fileCommits.size() - 1) { //判断下一个commit是否修复了bug
                             nextCommit = fileCommits.get(i + 1);
-                        }else{ //判断是否发生了Renamed，如果发生则检查此commit是否修复了bug
-                            if(renamedFiles.containsKey(fileName)){
+                        } else { //判断是否发生了Renamed，如果发生则检查此commit是否修复了bug
+                            if (renamedFiles.containsKey(fileName)) {
                                 nextCommit = fileCommitsMap.get(renamedFiles.get(fileName)).get(0);
                             }
                         }
-                        if(nextCommit != null){
+                        if (nextCommit != null) {
                             ArrayList<String> issues = commitDao.getIssuesFromMessage(nextCommit.getMessage(), keys);
-                            for(String issue : issues){
+                            for (String issue : issues) {
                                 //判断该issue是否是一个新的bug
-                                if(!issueKey.equals(issue) && "Bug".equalsIgnoreCase(issueDao.getIssue(issue).getIssueType())){
+                                Issue issueDB = issueDao.getIssue(issue);
+                                if (issueDB != null &&
+                                        !issueKey.equals(issue) &&
+                                        "Bug".equalsIgnoreCase(issueDB.getIssueType())) {
                                     return true;
                                 }
                             }
@@ -75,7 +78,7 @@ public class IssueService {
     /**
      * 获取两个issue的OpenDuration，规则是：最迟解决时间-最早报告时间
      */
-    public long getOpenDuration(String keyA,String keyB) {
+    public long getOpenDuration(String keyA, String keyB) {
         Issue issueA = issueDao.getIssue(keyA);
         Issue issueB = issueDao.getIssue(keyB);
         LocalDateTime createdA = LocalDateTime.parse(issueA.getCreated(), formatterMySQL);
@@ -84,6 +87,6 @@ public class IssueService {
         LocalDateTime resolutiondateB = LocalDateTime.parse(issueB.getResolutiondate(), formatterMySQL);
         LocalDateTime created = createdA.isBefore(createdB) ? createdA : createdB;
         LocalDateTime end = resolutiondateA.isAfter(resolutiondateB) ? resolutiondateA : resolutiondateB;
-        return Duration.between(created,end).toMinutes();
+        return Duration.between(created, end).toMinutes();
     }
 }

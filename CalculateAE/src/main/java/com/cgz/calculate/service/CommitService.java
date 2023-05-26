@@ -48,7 +48,6 @@ public class CommitService {
 
     /**
      * 给定一对issuepair，返回要导出的版本的commit的Revision
-     *
      * @param bugPair 给定的一对issuePair
      * @return 返回对应的commit的Revision
      */
@@ -89,7 +88,6 @@ public class CommitService {
 
     /**
      * 判断两个issue是否属于同一个commit
-     *
      * @param issueA issueA的Key
      * @param issueB issueB的Key
      * @param map    commitrecord的map
@@ -136,15 +134,17 @@ public class CommitService {
      * 解析出所有发生了Renamed的文件
      * @return 返回一个Map，key是文件的原名，value是文件更改后的名
      */
-    public Map<String,String> parseRenamedFile(List<Commit> commits){
+    public Map<String, String> parseRenamedFile(List<Commit> commits) {
         HashMap<String, String> map = new HashMap<>();
         for (Commit commit : commits) {
             for (Commit.FileChange fileChange : commit.getFilesChange()) {
-                if ("Renamed".equals(fileChange.getOperate())){
-                    if(map.containsKey(fileChange.getOldFileName()) &&
-                    !map.get(fileChange.getOldFileName()).equals(fileChange.getFileName())){
-                        throw new RuntimeException("该fileName"+fileChange+"已在map中");
-                    }else {
+                if ("Renamed".equals(fileChange.getOperate())) {
+                    if (map.containsKey(fileChange.getOldFileName()) &&
+                            !map.get(fileChange.getOldFileName()).equals(fileChange.getFileName())) {
+                        System.out.println("已存在：" + fileChange.getOldFileName() + "--→ " + map.get(fileChange.getOldFileName()));
+                        System.out.println("现在有：" + fileChange.getOldFileName() + "--→ " + fileChange.getFileName());
+                        //throw new RuntimeException("该fileName"+fileChange+"已在map中");
+                    } else {
                         map.put(fileChange.getOldFileName(), fileChange.getFileName());
                     }
                 }
