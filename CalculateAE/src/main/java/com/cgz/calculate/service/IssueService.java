@@ -41,7 +41,7 @@ public class IssueService {
      * 检查修复该issue时是否引入了新的bug
      */
     public boolean isLeadBug(String issueKey, List<Commit> commits, Map<String, List<Commit>> fileCommitsMap,
-                             Map<String, String> renamedFiles, List<String> keys) {
+                             Map<String, List<String>> renamedFiles, List<String> keys) {
         for (Commit commit : commits) {
             for (Commit.FileChange fileChange : commit.getFilesChange()) {
                 String fileName = fileChange.getFileName();

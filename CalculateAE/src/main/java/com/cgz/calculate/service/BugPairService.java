@@ -45,7 +45,7 @@ public class BugPairService {
         //从commit记录中解析出每个文件出现在哪些Commit(s)
         Map<String, List<Commit>> fileCommitsMap = commitService.parseFileInCommits(commitList);
         //从commit记录中解析出发生了Renamed的文件
-        Map<String, String> renamedFiles = commitService.parseRenamedFile(commitList);
+        Map<String, List<String>> renamedFiles = commitService.parseRenamedFile(commitList);
 
         System.out.println("  过滤 "+name+" 的bugPair...");
         //过滤bugPair，只留下两个都为Bug类型，且状态必须为Resolved或Closed，且必须在数据库和commit文件中同时存在的BugPair

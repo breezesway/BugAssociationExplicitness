@@ -132,20 +132,21 @@ public class CommitService {
 
     /**
      * 解析出所有发生了Renamed的文件
-     * @return 返回一个Map，key是文件的原名，value是文件更改后的名
+     * @return 返回一个Map，key是文件的原名，list是文件更改后的名（可能存在多个，暂不清楚原因，这里暂时全算进去）
      */
-    public Map<String, String> parseRenamedFile(List<Commit> commits) {
-        HashMap<String, String> map = new HashMap<>();
+    public Map<String, List<String>> parseRenamedFile(List<Commit> commits) {
+        HashMap<String, List<String>> map = new HashMap<>();
         for (Commit commit : commits) {
             for (Commit.FileChange fileChange : commit.getFilesChange()) {
                 if ("Renamed".equals(fileChange.getOperate())) {
-                    if (map.containsKey(fileChange.getOldFileName()) &&
-                            !map.get(fileChange.getOldFileName()).equals(fileChange.getFileName())) {
-                        System.out.println("已存在：" + fileChange.getOldFileName() + "--→ " + map.get(fileChange.getOldFileName()));
-                        System.out.println("现在有：" + fileChange.getOldFileName() + "--→ " + fileChange.getFileName());
-                        //throw new RuntimeException("该fileName"+fileChange+"已在map中");
+                    if (map.containsKey(fileChange.getOldFileName())) {
+                        if(!map.get(fileChange.getOldFileName()).contains(fileChange.getFileName())){
+                            map.get(fileChange.getOldFileName()).add(fileChange.getFileName());
+                        }
                     } else {
-                        map.put(fileChange.getOldFileName(), fileChange.getFileName());
+                        ArrayList<String> value = new ArrayList<>(1);
+                        value.add(fileChange.getFileName());
+                        map.put(fileChange.getOldFileName(), value);
                     }
                 }
             }
