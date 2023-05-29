@@ -39,6 +39,12 @@ public class IssueService {
 
     /**
      * 检查修复该issue时是否引入了新的bug
+     * @param issueKey 该issue的Key
+     * @param commits 该issue对应的commit
+     * @param fileCommitsMap 该项目每个文件对应的commit
+     * @param renamedFiles 所有发生过renamed的文件
+     * @param keys 该项目的Key前缀
+     * @return 是否引入了新的Bug
      */
     public boolean isLeadBug(String issueKey, List<Commit> commits, Map<String, List<Commit>> fileCommitsMap,
                              Map<String, List<String>> renamedFiles, List<String> keys) {
@@ -48,15 +54,17 @@ public class IssueService {
                 List<Commit> fileCommits = fileCommitsMap.get(fileName);
                 for (int i = 0; i < fileCommits.size(); i++) {
                     if (commit.getRevision().equals(fileCommits.get(i).getRevision())) {
-                        Commit nextCommit = null;
-                        if (i < fileCommits.size() - 1) { //判断下一个commit是否修复了bug
-                            nextCommit = fileCommits.get(i + 1);
-                        } else { //判断是否发生了Renamed，如果发生则检查此commit是否修复了bug
+                        List<Commit> nextCommits = new ArrayList<>();
+                        if (i < fileCommits.size() - 1) { //是否还存在下一个commit
+                            nextCommits.add(fileCommits.get(i + 1));
+                        } else { //改文件名不存在下一个commit了，此时判断是否发生了Renamed
                             if (renamedFiles.containsKey(fileName)) {
-                                nextCommit = fileCommitsMap.get(renamedFiles.get(fileName)).get(0);
+                                for(String f : renamedFiles.get(fileName)){
+                                    nextCommits.add(fileCommitsMap.get(f).get(0));
+                                }
                             }
                         }
-                        if (nextCommit != null) {
+                        for(Commit nextCommit : nextCommits){
                             ArrayList<String> issues = commitDao.getIssuesFromMessage(nextCommit.getMessage(), keys);
                             for (String issue : issues) {
                                 //判断该issue是否是一个新的bug
