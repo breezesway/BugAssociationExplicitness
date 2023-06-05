@@ -72,6 +72,8 @@ public class IssueService {
                                 if (issueDB != null &&
                                         !issueKey.equals(issue) &&
                                         "Bug".equalsIgnoreCase(issueDB.getIssueType())) {
+                                    System.out.println("修复 "+issueKey+" 时，导致了 "+issue);
+                                    System.out.println("具体表现在 "+fileName+" ，该文件在"+commit.getRevision()+"更改，随后又在"+nextCommit.getRevision()+"中更改");
                                     return true;
                                 }
                             }
